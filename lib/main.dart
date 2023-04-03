@@ -1,34 +1,46 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:smart_irrigation_system/AutomaticPage.dart';
-import 'package:smart_irrigation_system/ManualPage.dart';
-import 'FirstPage.dart';
+import 'package:smart_irrigation_system/firebase_functions.dart';
+import 'SelectionPage.dart';
+import 'ManualPage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'globalVariable.dart';
+
+var pageState; //variable stores the value of page state fetched from database
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: FirebaseOptions(
-    apiKey: "AIzaSyB11nTed8rQzyit31WpLVrWz39Yd5VFa4k",
-    projectId: "smart-irrigation-system-fa56a",
-    messagingSenderId: "824313233571",
-    appId: "1:824313233571:web:dbfda510892154269cff16",
-  ));
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent));
 
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  final ref = FirebaseDatabase.instance.ref("Page");
+
+  final snapshot = await ref.child('').get();
+
+  if (snapshot.exists) {
+    pageState = snapshot.value;
+  } else {
+    print('No data available.');
+  }
+  getCurrentPage();
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     home: returnScreen(),
-    title: "Smart Irrigation System",
+    title: "AgroTech",
   ));
 }
 
 Widget? returnScreen() {
-
-
-  if ( isSelected== 1) {
-    return const Automatic();
-  } else if (isSelected == 2) {
-    return const Manual();
+  if (pageState == 1) {
+    return AutomaticPage();
+  } else if (pageState == 2) {
+    return ManualPage();
+  } else if (pageState == 0) {
+    return SelectionPage();
   }
-  return const FirstPage();
 }

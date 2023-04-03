@@ -1,6 +1,10 @@
 library globals.dart;
 
-var isSelected=0;
+import 'package:flutter/cupertino.dart';
+
+final myController = TextEditingController();
+
+var isSelected;
 
 String? selectedCrop;
 String? selectedSoil;
@@ -9,6 +13,8 @@ double? temperature;
 double? humidity;
 double? soilmoisture;
 String? day;
+String? city_name;
+String? cityName;
 
 var crops = [
   'Wheat',
@@ -29,3 +35,5 @@ var soils = [
   'Muddy Soil',
 ];
 var modes = ['Automatic', 'Manual'];
+
+

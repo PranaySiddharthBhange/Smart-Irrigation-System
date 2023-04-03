@@ -36,7 +36,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   syncfusion_flutter_gauges: ^20.4.53
-
+  firebase_database: ^10.0.15
+  internet_connection_checker: ^1.0.0+1
+  connectivity_plus:
+  http: ^0.13.5
+  page_transition:
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,9 +71,9 @@ flutter:
      - assets/images/transfer.png
      - assets/images/weather-news.png
      - assets/images/plant.png
+     - assets/images/plant2.png
      - assets/images/agriculture.png
-
-
+     - assets/images/time.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

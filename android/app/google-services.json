@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "824313233571",
-    "project_id": "smart-irrigation-system-fa56a",
-    "storage_bucket": "smart-irrigation-system-fa56a.appspot.com"
+    "project_number": "998053960418",
+    "project_id": "agrotech-d6e76",
+    "storage_bucket": "agrotech-d6e76.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:824313233571:android:fc5fc239b0c40cc09cff16",
+        "mobilesdk_app_id": "1:998053960418:android:2820db760338c72bbddcbb",
         "android_client_info": {
           "package_name": "com.example.smart_irrigation_system"
         }
       },
       "oauth_client": [
         {
-          "client_id": "824313233571-usr0e42ph58fccvkgl2gb20gufqup9ln.apps.googleusercontent.com",
+          "client_id": "998053960418-0andvb22j9aofv5ri4ggsgmpog6j967a.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD_BLdQCprS4C4n4VPaqEDeRzClJYOjO2c"
+          "current_key": "AIzaSyDY2AwIV_M6pWb7lSiGn7TyYXTagD2vfCI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "824313233571-usr0e42ph58fccvkgl2gb20gufqup9ln.apps.googleusercontent.com",
+              "client_id": "998053960418-0andvb22j9aofv5ri4ggsgmpog6j967a.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

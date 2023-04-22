@@ -5,9 +5,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:meta/meta.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_irrigation_system/AutomaticPage.dart';
 import 'package:smart_irrigation_system/SelectionPage.dart';
+import 'package:smart_irrigation_system/firebase_functions.dart';
 import 'History.dart';
 import 'Sensors.dart';
 import 'Weather.dart';
@@ -17,54 +19,24 @@ import 'globalVariable.dart';
 
 
 class ManualPage extends StatefulWidget {
-  const ManualPage({Key? key}) : super(key: key);
+
+  ManualPage({Key? key}) : super(key: key);
 
   @override
   State<ManualPage> createState() => _ManualPageState();
 }
 var WhichCrop;
 var WhichSoil;
+//variable store value of motor status from database
 var status;
-Future<void> readStatus() async {
+//variable store value of mode
 
-  final DataRef3 = FirebaseDatabase.instance.ref("Motor Status");
-  final snapshot = await DataRef3.child('').get();
-  if (snapshot.exists) {
-    status= snapshot.value;
-    print(status);
 
-  } else {
-    print('No data available.');
-  }
+//
+// var mode;
 
-}
-Future<void> read() async {
 
-  final DataRef = FirebaseDatabase.instance.ref("Database");
-  final snapshot = await DataRef.child('Selection/Crop').get();
-  if (snapshot.exists) {
-    WhichCrop= snapshot.value;
-    print(WhichCrop);
 
-  } else {
-    print('No data available.');
-  }
-
-}
-
-Future<void> read2() async {
-
-  final DataRef = FirebaseDatabase.instance.ref("Database");
-  final snapshot = await DataRef.child('Selection/Soil').get();
-  if (snapshot.exists) {
-    WhichSoil= snapshot.value;
-    print(WhichSoil);
-
-  } else {
-    print('No data available.');
-  }
-
-}
 
 
 class _ManualPageState extends State<ManualPage> {
@@ -74,8 +46,13 @@ class _ManualPageState extends State<ManualPage> {
   late StreamSubscription subscription;
   var isDeviceConnected=false;
   bool isAlertSet =false;
+
+
+
+
   @override
   void initState(){
+    print("in manual page");
     getConnectivity();
     super.initState();
   }
@@ -122,9 +99,6 @@ class _ManualPageState extends State<ManualPage> {
     double height=size.height;
     double width =size.width;
 
-    read();
-    read2();
-    readStatus();
     return WillPopScope(
       onWillPop: () async {
         DateTime now = DateTime.now();
@@ -134,7 +108,7 @@ class _ManualPageState extends State<ManualPage> {
           _currentBackPressTime = now;
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Press back button again to exit'),
             ),
           );
@@ -188,58 +162,123 @@ class _ManualPageState extends State<ManualPage> {
                                 child: Image.asset("assets/images/plant2.png")),
                             Column(
                               children: [
-                                Text("Day : $day",style: TextStyle(color: Colors.black,fontSize: width/17),),
-                                Text("Motor Status :$status",style: TextStyle(color:statusColor,fontSize:width/30),),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child:Container(
-                                      height: 50,
-                                      width: 90,
-                                      decoration: BoxDecoration(
-                                          color: statusColor,
-                                          border: Border.all(color: Colors.black, width: 1.5),
-                                          borderRadius: BorderRadius.circular(20)),
-                                      child:TextButton(
-                                        style: ButtonStyle(
-                                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                                        ),
-                                        onPressed: () {
+                                Expanded(
+                                    child: StreamBuilder(
+                                        stream: FirebaseDatabase.instance.ref('Date').onValue,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            var databaseEvent = snapshot.data!; // 👈 Get the DatabaseEvent from the AsyncSnapshot
+                                            var databaseSnapshot = databaseEvent.snapshot; // 👈 Get the DataSnapshot from the DatabaseEvent
+                                            print('Snapshot: ${databaseSnapshot.value}');
 
-                                             var time=DateTime.now();
-                                             print(time);
+                                            DateTime dateTimeCreatedAt = DateTime.parse('${databaseSnapshot.value}');
+                                            DateTime dateTimeNow = DateTime.now();
+                                            differenceInDays = dateTimeNow.difference(dateTimeCreatedAt).inDays;
 
-
-                                             final REf = FirebaseDatabase.instance.ref("History");
-                                             REf.child(DateTime.now().millisecondsSinceEpoch.toString()).set({
-                                               "time":DateTime.now().toString(),
-                                               "Status" :status.toString()
-                                             });
-
-
-
-
-                                             if(status==0)
-                                              {
-
-
-
-                                                changeColor();
-
-                                                final DataRef3 = FirebaseDatabase.instance.ref("Motor Status");
-                                                DataRef3.set(1);
-                                              }
-                                            else
-                                              {
-                                                changeColor();
-                                                final DataRef3 = FirebaseDatabase.instance.ref("Motor Status");
-                                                DataRef3.set(0);
-                                              }
-                                        },
-                                        child: Text('$status',style: TextStyle(fontSize: 20,color: Colors.white),),
-                                      )),
+                                            return Text("Day : $differenceInDays",style: TextStyle(color: Colors.black),);
+                                          } else {
+                                            return CircularProgressIndicator();
+                                          }      }
+                                    )
                                 ),
-                                Text("Crop :$WhichCrop",style: TextStyle(color: Colors.black,fontSize: width/30),),
-                                Text("Soil :$WhichSoil",style: TextStyle(color: Colors.black,fontSize: width/30))
+                                Expanded(
+                                    child: StreamBuilder(
+                                        stream: FirebaseDatabase.instance.ref('status').onValue,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            var databaseEvent = snapshot.data!; // 👈 Get the DatabaseEvent from the AsyncSnapshot
+                                            var databaseSnapshot = databaseEvent.snapshot; // 👈 Get the DataSnapshot from the DatabaseEvent
+                                            print('Snapshot: ${databaseSnapshot.value}');
+                                            return Text("Motor Status : ${databaseSnapshot.value.toString()}",style: TextStyle(color: Colors.black),);
+                                          } else {
+                                            return CircularProgressIndicator();
+                                          }      }
+                                    )
+                                ),
+                                Expanded(
+                                    child: StreamBuilder(
+                                        stream: FirebaseDatabase.instance.ref('soil').onValue,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            var databaseEvent = snapshot.data!; // 👈 Get the DatabaseEvent from the AsyncSnapshot
+                                            var databaseSnapshot = databaseEvent.snapshot; // 👈 Get the DataSnapshot from the DatabaseEvent
+                                            print('Snapshot: ${databaseSnapshot.value}');
+                                            return Text("Selected Soil : ${databaseSnapshot.value.toString()}",style: TextStyle(color: Colors.black),);
+                                          } else {
+                                            return CircularProgressIndicator();
+                                          }      }
+                                    )
+                                ),
+                                Expanded(
+                                    child: StreamBuilder(
+                                        stream: FirebaseDatabase.instance.ref('crop').onValue,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            var databaseEvent = snapshot.data!; // 👈 Get the DatabaseEvent from the AsyncSnapshot
+                                            var databaseSnapshot = databaseEvent.snapshot; // 👈 Get the DataSnapshot from the DatabaseEvent
+                                            print('Snapshot: ${databaseSnapshot.value}');
+                                            return Text("Selected Crop : ${databaseSnapshot.value.toString()}",style: TextStyle(color: Colors.black),);
+                                          } else {
+                                            return const CircularProgressIndicator();
+                                          }      }
+                                    )
+                                ),
+
+                                StreamBuilder(
+                                    stream: FirebaseDatabase.instance.ref('status').onValue,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        var databaseEvent = snapshot.data!; // 👈 Get the DatabaseEvent from the AsyncSnapshot
+                                        var databaseSnapshot = databaseEvent.snapshot; // 👈 Get the DataSnapshot from the DatabaseEvent
+                                        print('Snapshot: ${databaseSnapshot.value}');
+                                        return Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child:Container(
+                                              height: 50,
+                                              width: 90,
+                                              decoration: BoxDecoration(
+                                                  color: statusColor,
+                                                  border: Border.all(color: Colors.black, width: 1.5),
+                                                  borderRadius: BorderRadius.circular(20)),
+                                              child:TextButton(
+                                                style: ButtonStyle(
+                                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                                ),
+                                                onPressed: () async {
+                                                  var overStatus;
+                                                  final statRef=FirebaseDatabase.instance.ref('status');
+                                                 await statRef.get().then((value) {
+                                                    setState(() {
+                                                      overStatus=value.value;
+                                                    });
+                                                  });
+                                                  print(overStatus);
+                                                  if(overStatus=='Off'){
+                                                    statRef.set('On');
+                                                  }
+                                                  else{
+                                                    statRef.set('Off');
+                                                  }
+
+                                                  var time=DateTime.now();
+                                                  print(time);
+
+                                                  final historyRef = FirebaseDatabase.instance.ref("History");
+                                                  historyRef.child(DateTime.now().millisecondsSinceEpoch.toString()).set({
+                                                    "time":DateTime.now().toString(),
+                                                    "Status" :databaseSnapshot.value.toString(),
+                                                    "Currentmode" : 'Manual'
+                                                  });
+
+                                                },
+                                                child: Text('${databaseSnapshot.value}',style: TextStyle(fontSize: 20,color: Colors.white),),
+                                              )),
+                                        );
+                                      } else {
+                                        return CircularProgressIndicator();
+                                      }      }
+                                ),
+
                               ],
                             )
                           ],
